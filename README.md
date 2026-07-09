@@ -1,3 +1,19 @@
+# VSCodeAlloyExtension
+
+## Important!
+This is a fork from Arash Sahebolamri's original [VSCodeAlloyExtension](https://github.com/s-arash/VSCodeAlloyExtension/tree/master) implementation.
+
+To build this, you'll need Alloy's jar file in this project's root directory:
+
+```
+$ wget https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.2.0/org.alloytools.alloy.dist.jar
+$ npm install
+$ npm run compile
+$ code .
+```
+
+Then, inside VSCode, press F5. A new window should appear with the extension activated.
+
 This extension provides rich support for the [Alloy](http://alloytools.org/) specification language.
 
 **Note:** This extension supports **Alloy 6**. If your specifications are not compatible with Alloy 6, use the [Alloy5 extension](https://marketplace.visualstudio.com/items?itemName=ArashSahebolamri.alloy5) instead.

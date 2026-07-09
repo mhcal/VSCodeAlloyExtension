@@ -77,7 +77,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	
 	disposable = vscode.commands.registerCommand('alloy.openLatestInstance', () => {
 		if(latestInstanceLink)
-			client.sendNotification("OpenModel", latestInstanceLink);
+			openModelXML(latestInstanceLink, _webViewPanel);
 		else
 			vscode.window.showWarningMessage("No Alloy instances generated yet!");
 	});
@@ -204,7 +204,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		_webViewPanel.webview.html = alloyWebViewContent;
 		_webViewPanel.webview.onDidReceiveMessage( (req : {method : "model" | "stop" | "instanceCreated" , data: any}) => {
 			if (req.method === "model"){
-				client.sendNotification("OpenModel", req.data.link);
+				openModelXML(req.data.link, _webViewPanel);
 				latestInstanceLink = req.data.link;
 			} else if (req.method === "instanceCreated"){
 				latestInstanceLink = req.data.link;
@@ -239,6 +239,22 @@ export async function activate(context: vscode.ExtensionContext) {
 // this method is called when the extension is deactivated
 export function deactivate() {
 	lsProc.kill();
+}
+
+async function openModelXML(link: string, panel: vscode.WebviewPanel | null) {
+	let path = link;
+	if (path.startsWith("XML: "))
+		path = path.substring(5).trim();
+	const uri = vscode.Uri.file(path);
+	const targetColumn = panel ? panel.viewColumn : vscode.ViewColumn.Active;
+	vscode.workspace.openTextDocument(uri).then(doc => {
+		vscode.window.showTextDocument(doc, {
+			viewColumn: targetColumn,
+			preserveFocus: false
+		});
+	}, err => {
+		vscode.window.showErrorMessage("failed to open xml model inside vscode: " + err)
+	})
 }
 
 async function createClientOwnedTCPServerOptions(port: number): Promise<ServerOptions> {

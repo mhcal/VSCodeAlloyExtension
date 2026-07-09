@@ -33,6 +33,23 @@
                 ]
             }
         ],
+        "grammars": [
+            {
+                "language": "alloy",
+                "scopeName": "source.als",
+                "path": "./syntaxes/alloy.tmLanguage.json"
+            },
+            {
+                "scopeName": "markdown.alloy.codeblock",
+                "path": "./syntaxes/alloy.markdown.json",
+                "injectTo": [
+                    "text.html.markdown"
+                ],
+                "embeddedLanguages": {
+                    "meta.embedded.block.alloy": "alloy"
+                }
+            }
+        ],
         "configuration": [
             {
                 "title": "Alloy",
@@ -119,9 +136,6 @@
     },
     "keywords": [
         "Alloy"
-    ],
-    "extensionDependencies": [
-        "DongyuZhao.alloy-vscode"
     ],
     "author": {
         "name": "Arash Sahebolamri"
