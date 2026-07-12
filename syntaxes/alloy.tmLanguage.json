@@ -140,15 +140,19 @@
                             "patterns": [{
                                 "match": "!|#|~|\\*|\\^|(\\b(not)\\b)",
                                 "name": "keyword.operator.unary.alloy"
-                            }]
+                            },
+                            {
+                                "match": "\\b(always|eventually|after|before|historically|once)\\b"
+                            }
+                        ]
                         },
                         "binary": {
                             "patterns": [{
-                                    "match": "(?:\\|\\|)|&&|<=>|=>|&|\\+|-|\\+\\+|<:|:>|\\.|=|->",
+                                    "match": "(?:\\|\\|)|&&|<=>|=>|&|\\+|-|\\+\\+|<:|:>|\\.|=|->|;",
                                     "name": "keyword.operator.binary.alloy"
                                 },
                                 {
-                                    "match": "\\b(and|or|iff|implies|else|in)\\b",
+                                    "match": "\\b(and|or|iff|implies|else|in|until|releases|since|triggered)\\b",
                                     "name": "keyword.operator.binary.alloy"
                                 },
                                 {
