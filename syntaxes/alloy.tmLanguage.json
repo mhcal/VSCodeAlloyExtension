@@ -17,7 +17,7 @@
             "include": "#keywords"
         },
         {
-            "include": "#digit"
+            "include": "#constants"
         }
     ],
     "repository": {
@@ -54,6 +54,9 @@
                 },
                 {
                     "include": "#variable"
+                },
+                {
+                    "include": "#reserved"
                 }
             ],
             "repository": {
@@ -113,7 +116,8 @@
                     ]
                 },
                 "modifier": {
-                    "patterns": [{
+                    "patterns": [
+                        {
                             "match": "\\b(private)\\b",
                             "name": "keyword.modifier.private.alloy"
                         },
@@ -122,7 +126,11 @@
                             "name": "keyword.modifier.abstract.alloy"
                         },
                         {
-                            "match": "\\b(all|disj|lone|no|one|set|seq|some|sum|univ|none)\\b",
+                            "match": "\\b(var)\\b",
+                            "name": "keyword.modifier.var.alloy"
+                        },
+                        {
+                            "match": "\\b(all|disj|lone|no|one|set|some|sum)\\b",
                             "name": "keyword.modifier.set.alloy"
                         }
                     ]
@@ -138,11 +146,12 @@
                     "repository": {
                         "unary": {
                             "patterns": [{
-                                "match": "!|#|~|\\*|\\^|(\\b(not)\\b)",
+                                "match": "!|#|~|\\*|\\^|'|@",
                                 "name": "keyword.operator.unary.alloy"
                             },
                             {
-                                "match": "\\b(always|eventually|after|before|historically|once)\\b"
+                                "match": "\\b(not|always|eventually|after|before|historically|once)\\b",
+                                "name": "keyword.operator.unary.alloy"
                             }
                         ]
                         },
@@ -198,8 +207,21 @@
                         {
                             "match": "\\b(expect)\\b",
                             "name": "keyword.control.expect.alloy"
+                        },
+                        {
+                            "match": "\\b(steps)\\b",
+                            "name": "keyword.control.steps.alloy"
                         }
                     ]
+                },
+                "reserved": {
+                    "patterns": [
+                        {
+                            "match": "\\b(event|modifies|enabled|invariatn)\\b",
+                            "name": "keyword.reserved.alloy"
+                        }
+                    ]
+
                 }
             }
         },
@@ -249,16 +271,19 @@
                 },
                 "signature": {
                     "patterns": [{
-                        "begin": "(abstract)?\\s*(lone|some|one)?\\s*(sig)\\b\\s*",
+                        "begin": "(var)?\\s*(abstract)?\\s*(lone|some|one)?\\s*(sig)\\b\\s*",
                         "end": "(?=\\{)",
                         "beginCaptures": {
                             "1": {
-                                "name": "keyword.modifier.abstract.alloy"
+                                "name": "keyword.modifier.var.alloy"
                             },
                             "2": {
-                                "name": "keyword.modifier.set.alloy"
+                                "name": "keyword.modifier.abstract.alloy"
                             },
                             "3": {
+                                "name": "keyword.modifier.set.alloy"
+                            },
+                            "4": {
                                 "name": "keyword.language.sig.alloy"
                             }
                         },
@@ -351,17 +376,34 @@
                             "name": "keyword.language.assert.alloy"
                         },
                         "2": {
-                            "name": "entity.name.function.check.alloy"
+                            "name": "entity.name.function.assert.alloy"
+                        }
+                    }
+                },
+                {
+                    "match": "(run)\\b\\s*((?:\\w|'|_|\\d|/)+)",
+                    "captures": {
+                        "1": {
+                            "name": "keyword.language.run.alloy"
+                        },
+                        "2": {
+                            "name": "entity.name.function.run.alloy"
                         }
                     }
                 }
             ]
         },
-        "digit": {
+        "constants": {
             "patterns": [{
                 "match": "\\b(\\d+)\\b",
                 "name": "constant.numeric.alloy"
-            }]
+            },
+            {
+                "match": "\\b(univ|none|iden|Int)\\b",
+                "name": "constant.language.alloy"
+
+            }
+        ]
         },
         "built-in": {
             "patterns": [{

@@ -30,7 +30,8 @@
                 ],
                 "extensions": [
                     ".als"
-                ]
+                ],
+                "configuration": "./language-configuration.json"
             }
         ],
         "grammars": [
