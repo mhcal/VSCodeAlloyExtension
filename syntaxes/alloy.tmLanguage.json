@@ -217,7 +217,7 @@
                 "reserved": {
                     "patterns": [
                         {
-                            "match": "\\b(event|modifies|enabled|invariatn)\\b",
+                            "match": "\\b(event|modifies|enabled|invariant)\\b",
                             "name": "keyword.reserved.alloy"
                         }
                     ]
