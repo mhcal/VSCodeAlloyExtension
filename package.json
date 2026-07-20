@@ -146,17 +146,19 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.10.10",
+        "@types/vscode": "^1.23.0",
         "tslint": "^5.20.1",
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.36"
+        "typescript": "^4.9.5"
     },
     "dependencies": {
         "vscode-languageclient": "^4.4.2"
+    },
+    "overrides": {
+        "vscode-languageserver-protocol": "3.15.3"
     }
 }
