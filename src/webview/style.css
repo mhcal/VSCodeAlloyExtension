@@ -1,0 +1,100 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: sans-serif;
+    overflow: hidden;
+    background-color: #f3f3f3;
+    color: #333;
+}
+
+#toolbar {
+    background: #e8e8e8;
+    border-bottom: 1px solid #d0d0d0;
+    padding: 8px 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+button {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+button.active {
+    background: #d0e8ff;
+    border-color: #007acc;
+}
+
+#timeline {
+    background: #e0e0e0;
+    border-bottom: 1px solid #d0d0d0;
+    padding: 10px;
+    display: none;
+    justify-content: center;
+    overflow-x: auto;
+}
+
+#timeline-svg {
+    height: 50px;
+}
+
+#workspace {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+#graph-view {
+flex: 1;
+display: flex;
+position: relative;
+background: white;
+justify-content: center;
+align-items: center;
+overflow: auto;
+}
+
+#graph-view svg {
+    max-width: 95%;
+    max-height: 95%;
+}
+
+#xml-view {
+    flex: 1;
+    display: none;
+    overflow: auto;
+    background: white;
+    color: black;
+    padding: 16px;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+#legend {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: white;
+    border: 1px solid gray;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: monospace;
+    display: none;
+    z-index: 5;
+}
+
+#legend table {
+border-collapse: collapse;
+}
+
+#legend td {
+    padding: 2px 6px;
+}

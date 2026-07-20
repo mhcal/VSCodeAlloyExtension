@@ -23,18 +23,23 @@ import fs = require('fs');
 import { ChildProcess, spawn } from 'child_process';
 import { TextDocument, Uri } from 'vscode';
 import { log } from 'util';
+// import { join } from 'path';
 
 
 let lsProc: ChildProcess;
 let client: LanguageClient;
 let alloyWebViewContent: string;
 let latestInstanceLink : string | null = null;
+let activeVisualizerPanel: vscode.WebviewPanel | null = null;
+let extensionUri: vscode.Uri;
 
 function isAlloyLangId (id : String) : boolean {
 	return id === "alloy" || id === "markdown";
 } 
 
 export async function activate(context: vscode.ExtensionContext) {
+	extensionUri = context.extensionUri;
+	//extensionPath = context.extensionPath;
 	const console = vscode.window.createOutputChannel("Alloy Extension");
 
 	const alloyJar = context.asAbsolutePath("org.alloytools.alloy.dist.jar");
@@ -77,7 +82,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	
 	disposable = vscode.commands.registerCommand('alloy.openLatestInstance', () => {
 		if(latestInstanceLink)
-			openModelXML(latestInstanceLink, _webViewPanel);
+			openModel(latestInstanceLink, _webViewPanel);
 		else
 			vscode.window.showWarningMessage("No Alloy instances generated yet!");
 	});
@@ -204,7 +209,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		_webViewPanel.webview.html = alloyWebViewContent;
 		_webViewPanel.webview.onDidReceiveMessage( (req : {method : "model" | "stop" | "instanceCreated" , data: any}) => {
 			if (req.method === "model"){
-				openModelXML(req.data.link, _webViewPanel);
+				openModel(req.data.link, _webViewPanel);
 				latestInstanceLink = req.data.link;
 			} else if (req.method === "instanceCreated"){
 				latestInstanceLink = req.data.link;
@@ -241,20 +246,77 @@ export function deactivate() {
 	lsProc.kill();
 }
 
-async function openModelXML(link: string, panel: vscode.WebviewPanel | null) {
-	let path = link;
-	if (path.startsWith("XML: "))
+async function openModel(link: string, panel: vscode.WebviewPanel | null) {
+    let path = link;
+    if (path.startsWith("XML: "))
 		path = path.substring(5).trim();
-	const uri = vscode.Uri.file(path);
-	const targetColumn = panel ? panel.viewColumn : vscode.ViewColumn.Active;
-	vscode.workspace.openTextDocument(uri).then(doc => {
-		vscode.window.showTextDocument(doc, {
-			viewColumn: targetColumn,
-			preserveFocus: false
-		});
-	}, err => {
-		vscode.window.showErrorMessage("failed to open xml model inside vscode: " + err)
-	})
+
+    try {
+        const uri = vscode.Uri.file(path);
+        const xmlContent = fs.readFileSync(uri.fsPath, 'utf8');
+        let currentInstancePath = uri.fsPath;
+        const targetColumn = panel ? panel.viewColumn : vscode.ViewColumn.Active;
+
+        if (!activeVisualizerPanel) {
+            activeVisualizerPanel = vscode.window.createWebviewPanel(
+                'alloyGraph', 'Alloy Visualizer', targetColumn || vscode.ViewColumn.Beside,
+                {
+					enableScripts: true,
+					retainContextWhenHidden: true,
+                  	localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'src', 'webview')]
+				}
+            );
+
+            activeVisualizerPanel.onDidDispose(() => { activeVisualizerPanel = null; });
+            activeVisualizerPanel.webview.onDidReceiveMessage(message => {
+                if (message.type === 'ready' && currentInstancePath) {
+                    const instance = fs.readFileSync(currentInstancePath, 'utf8');
+                    activeVisualizerPanel?.webview.postMessage({ type: 'loadXmlInstance', xml: instance });
+                }
+            });
+
+            activeVisualizerPanel.webview.html = getGraphWebviewContent(activeVisualizerPanel.webview);
+        } else {
+            activeVisualizerPanel.reveal(targetColumn);
+            activeVisualizerPanel.webview.postMessage({ type: 'loadXmlInstance', xml: xmlContent });
+        }
+    } catch (err) {
+        vscode.window.showErrorMessage("Failed to read xml instance: " + err);
+    }
+}
+
+function getGraphWebviewContent(webview: vscode.Webview): string {
+	const style = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'src', 'webview', 'style.css'));
+	const script = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'src', 'webview', 'viewer.js'));
+	const viz = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'src', 'webview', 'viz.js'));
+	const render = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'src', 'webview', 'full.render.js'));
+
+	return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src ${webview.cspSource};">
+    <link href="${style}" rel="stylesheet">
+    <script src="${viz}"></script>
+    <script src="${render}"></script>
+</head>
+<body>
+    <div id="toolbar">
+        <button id="btn-graph" class="active">Graph</button>
+        <button id="btn-xml">XML</button>
+    </div>
+    <div id="timeline"><svg id="timeline-svg"></svg></div>
+    <div id="workspace">
+        <div id="graph-view">
+            <div id="legend"></div>
+            <div id="graph-canvas">Waiting for data</div>
+        </div>
+        <div id="xml-view"><pre id="xml-content"></pre></div>
+    </div>
+    <script src="${script}"></script>
+</body>
+</html>`;
 }
 
 async function createClientOwnedTCPServerOptions(port: number): Promise<ServerOptions> {
